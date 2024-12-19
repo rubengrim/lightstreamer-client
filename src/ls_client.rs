@@ -424,7 +424,7 @@ impl LightstreamerClient {
                                                 }
                                                 let encoded_params = serde_urlencoded::to_string(&params)?;
                                                 write_stream
-                                                    .send(Message::Text(format!("control\r\n{}", encoded_params)))
+                                                    .send(Message::Text(format!("control\r\n{}", encoded_params).into()))
                                                     .await?;
                                                 info!("Sent subscription request: '{}'", encoded_params);
                                             }
@@ -464,7 +464,7 @@ impl LightstreamerClient {
                                         // Extract the subscription from the first argument.
                                         //
                                         let subscription_index = arguments.get(1).unwrap_or(&"").parse::<usize>().unwrap_or(0);
-                                        let subscription = match self.get_subscriptions().get(subscription_index-1) {
+                                        let subscription = match self.get_subscriptions().get_mut(subscription_index-1) {
                                             Some(subscription) => subscription,
                                             None => {
                                                 self.make_log( Level::WARN, &format!("Subscription not found for index: {}", subscription_index) );
@@ -479,7 +479,7 @@ impl LightstreamerClient {
                                         let item = match subscription.get_items() {
                                             Some(items) => items.get(item_index-1),
                                             None => {
-                                                self.make_log( Level::WARN, &format!("No items found in subscription: {:?}", subscription) );
+                                                // self.make_log( Level::WARN, &format!("No items found in subscription: {:?}", subscription.clone()) );
                                                 continue;
                                             }
                                         };
@@ -712,7 +712,7 @@ impl LightstreamerClient {
                                         params.push(("LS_protocol", Self::TLCP_VERSION));
                                         let encoded_params = serde_urlencoded::to_string(&params)?;
                                         write_stream
-                                            .send(Message::Text(format!("create_session\r\n{}\n", encoded_params)))
+                                            .send(Message::Text(format!("create_session\r\n{}\n", encoded_params).into()))
                                             .await?;
                                         self.make_log( Level::DEBUG, &format!("Sent create session request: '{}'", encoded_params) );
                                     },
@@ -778,7 +778,7 @@ impl LightstreamerClient {
     #[instrument]
     pub async fn disconnect(&mut self) {
         // Implementation for disconnect
-        self.make_log( Level::INFO, "Disconnecting from Lightstreamer server" );
+        self.make_log(Level::INFO, "Disconnecting from Lightstreamer server");
     }
 
     /// Static inquiry method that can be used to share cookies between connections to the Server
@@ -850,8 +850,8 @@ impl LightstreamerClient {
     /// The list can be empty.
     ///
     /// See also `subscribe()`
-    pub fn get_subscriptions(&self) -> &Vec<Subscription> {
-        &self.subscriptions
+    pub fn get_subscriptions(&mut self) -> &mut Vec<Subscription> {
+        &mut self.subscriptions
     }
 
     /// Creates a new instance of `LightstreamerClient`.
@@ -1178,7 +1178,7 @@ impl LightstreamerClient {
     /// # Parameters
     ///
     /// * `loglevel` Enum determining use of stdout or Tracing subscriber.
-    pub fn make_log(&mut self, loglevel: Level, log: &str) {
+    pub fn make_log(&self, loglevel: Level, log: &str) {
         match self.logging {
             LogType::StdLogs => {
                 println!("{}", log);

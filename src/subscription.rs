@@ -176,8 +176,8 @@ impl Subscription {
     ///
     /// # See also
     /// `addListener()`
-    pub fn get_listeners(&self) -> &Vec<Box<dyn SubscriptionListener>> {
-        &self.listeners
+    pub fn get_listeners(&mut self) -> &mut Vec<Box<dyn SubscriptionListener>> {
+        &mut self.listeners
     }
 
     /// Inquiry method that can be used to read the mode specified for this Subscription.
