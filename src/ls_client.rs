@@ -414,6 +414,7 @@ impl LightstreamerClient {
                                                     ("LS_group", &ls_group),
                                                     ("LS_schema", &ls_schema),
                                                     ("LS_ack", "false"),
+                                                    ("LS_requested_max_frequency", "0.2"),
                                                 ];
                                                 // Remove the data adapter parameter if not specified.
                                                 if ls_data_adapter == "" {
