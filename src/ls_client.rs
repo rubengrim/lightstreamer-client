@@ -402,6 +402,11 @@ impl LightstreamerClient {
                                                     None => "".to_string(),
                                                 };
                                                 let ls_snapshot = subscription.get_requested_snapshot().unwrap_or_default().to_string();
+                                                let ls_max_frequency = match subscription.get_requested_max_frequency() {
+                                                    Some(frequency) => frequency.to_string(),
+                                                    None => "unlimited".to_string(),
+                                                };
+
                                                 //
                                                 // Prepare the subscription request.
                                                 //
@@ -414,7 +419,7 @@ impl LightstreamerClient {
                                                     ("LS_group", &ls_group),
                                                     ("LS_schema", &ls_schema),
                                                     ("LS_ack", "false"),
-                                                    ("LS_requested_max_frequency", "0.2"),
+                                                    ("LS_requested_max_frequency", &ls_max_frequency),
                                                 ];
                                                 // Remove the data adapter parameter if not specified.
                                                 if ls_data_adapter == "" {
